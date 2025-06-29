@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+ci_status() {
+    refs=$1
+    config_name=${PWD##*/}
+    jj-ci-resolver  -f ~/.config/jj/conf.d/salt.toml ${refs[@]} -r $(jj git remote list |awk '{print $2}')
+}
+
+read -a refs <<< $(jj log $@ -T '"--git-refs " ++ coalesce(commit_id) ++ " "' --no-graph)
+ci_status ${refs}
+
+jj log $@
+
