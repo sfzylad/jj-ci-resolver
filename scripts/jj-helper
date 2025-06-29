@@ -1,13 +1,25 @@
 #!/usr/bin/env bash
 
+JJ_CONF_D="${HOME}/.config/jj/conf.d"
+HEADER="--when.repositories = [ \"${PWD}\" ]"
+
+preflight_checks() {
+    config_name=${PWD##*/}
+    if [[ ! -e "${JJ_CONF_D}/${config_name}.toml" ]]; then
+        echo "${JJ_CONF_D}/${config_name}.toml doesn't exist, creating it."
+        echo "${HEADER}" > "${JJ_CONF_D}/${config_name}.toml"
+    fi
+}
+
 ci_status() {
     refs=$1
     config_name=${PWD##*/}
-    jj-ci-resolver  -f ~/.config/jj/conf.d/salt.toml ${refs[@]} -r $(jj git remote list |awk '{print $2}')
+    jj-ci-resolver  -f ~/.config/jj/conf.d/${config_name}.toml ${refs[@]} -r $(jj git remote list |awk '{print $2}')
 }
 
 read -a refs <<< $(jj log $@ -T '"--git-refs " ++ coalesce(commit_id) ++ " "' --no-graph)
+
+preflight_checks
 ci_status ${refs}
 
 jj log $@
-
