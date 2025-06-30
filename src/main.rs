@@ -37,6 +37,7 @@ async fn main() -> Result<(), Error> {
     let mut rs = Revsets::new(ConfigSource::User, args.file.into())?;
     let mut ci_success: Vec<String> = vec![];
     let mut ci_failures: Vec<String> = vec![];
+    let mut ci_canceled: Vec<String> = vec![];
     let mut ci_pending: Vec<String> = vec![];
 
     let remote = args.remote.clone();
@@ -48,26 +49,28 @@ async fn main() -> Result<(), Error> {
     while let Some(result) = rx.recv().await {
         match result {
             Status::Pending(id) => {
-                println!("{}: pending!", id);
                 ci_pending.push(id);
             }
             Status::Success(id) => {
-                println!("success!");
                 ci_success.push(id);
             }
             Status::Failure(id) => {
-                println!("failure!");
                 ci_failures.push(id);
             }
+            Status::Canceled(id) => {
+                ci_canceled.push(id);
+            }
             Status::Unknown(id) => {
-                eprintln!("{}: unknown state", id);
+                eprintln!("unknown state; {id}");
             }
         };
     }
 
-    println!("{:?}", ci_success);
-
-    if !ci_failures.is_empty() || !ci_success.is_empty() || !ci_pending.is_empty() {
+    if !ci_failures.is_empty()
+        || !ci_success.is_empty()
+        || !ci_pending.is_empty()
+        || !ci_canceled.is_empty()
+    {
         let _ = rs.clean();
     }
 
@@ -79,6 +82,9 @@ async fn main() -> Result<(), Error> {
     }
     if !ci_pending.is_empty() {
         rs.update_alias(ci_pending, Alias::Pending)?;
+    }
+    if !ci_canceled.is_empty() {
+        rs.update_alias(ci_canceled, Alias::Canceled)?;
     }
 
     Ok(())

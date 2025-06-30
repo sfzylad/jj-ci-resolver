@@ -1709,6 +1709,7 @@ dependencies = [
  "clap",
  "jj-lib",
  "serde",
+ "serde_json",
  "tokio",
  "toml",
 ]

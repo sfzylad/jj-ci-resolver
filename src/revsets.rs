@@ -13,6 +13,7 @@ pub enum Alias {
     Success,
     Failures,
     Pending,
+    Canceled,
 }
 
 impl Revsets {
@@ -33,6 +34,8 @@ impl Revsets {
             .set_value(r#"revset-aliases."ci_success""#, "dummy")?;
         self.layer
             .set_value(r#"revset-aliases."ci_pending""#, "dummy")?;
+        self.layer
+            .set_value(r#"revset-aliases."ci_canceled""#, "dummy")?;
         Ok(None)
     }
 
@@ -55,6 +58,11 @@ impl Revsets {
                 let _ = self
                     .layer
                     .set_value(r#"revset-aliases."ci_pending""#, value)?;
+            }
+            Alias::Canceled => {
+                let _ = self
+                    .layer
+                    .set_value(r#"revset-aliases."ci_canceled""#, value)?;
             }
         }
 

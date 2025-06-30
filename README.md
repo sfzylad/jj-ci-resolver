@@ -31,6 +31,7 @@ coalesce(
   [...]
   if(self.contained_in("present(ci_pending)"), "⌛"),
   if(self.contained_in("present(ci_failures)"), "❌"),
+  if(self.contained_in("present(ci_canceled)"), "💀"),
   if(self.contained_in("present(ci_success)"), "✅"),
   [...]
 )
@@ -67,6 +68,7 @@ statement and a set of revset aliases. Each alias for each state:
 - ci_pending
 - ci_success
 - ci_failures
+- ci_canceled
 
 This way the same aliases will return different set of commits for different
 repository.
