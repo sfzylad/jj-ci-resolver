@@ -8,7 +8,7 @@ use jj_lib::config::ConfigSource;
 
 use anyhow::{Error, Result};
 use clap::Parser;
-use revsets::Revsets;
+use revsets::{Alias, Revsets};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -47,19 +47,19 @@ async fn main() -> Result<(), Error> {
 
     while let Some(result) = rx.recv().await {
         match result {
-            gitlab::Status::Pending(id) => {
+            Status::Pending(id) => {
                 println!("{}: pending!", id);
                 ci_pending.push(id);
             }
-            gitlab::Status::Success(id) => {
+            Status::Success(id) => {
                 println!("success!");
                 ci_success.push(id);
             }
-            gitlab::Status::Failure(id) => {
+            Status::Failure(id) => {
                 println!("failure!");
                 ci_failures.push(id);
             }
-            gitlab::Status::Unknown(id) => {
+            Status::Unknown(id) => {
                 eprintln!("{}: unknown state", id);
             }
         };
@@ -67,14 +67,18 @@ async fn main() -> Result<(), Error> {
 
     println!("{:?}", ci_success);
 
+    if !ci_failures.is_empty() || !ci_success.is_empty() || !ci_pending.is_empty() {
+        let _ = rs.clean();
+    }
+
     if !ci_failures.is_empty() {
-        rs.set_ci_failures(ci_failures)?;
+        rs.update_alias(ci_failures, Alias::Failures)?;
     }
     if !ci_success.is_empty() {
-        rs.set_ci_success(ci_success)?;
+        rs.update_alias(ci_success, Alias::Success)?;
     }
     if !ci_pending.is_empty() {
-        rs.set_ci_pending(ci_pending)?;
+        rs.update_alias(ci_pending, Alias::Pending)?;
     }
 
     Ok(())
