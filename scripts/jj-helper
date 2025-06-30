@@ -5,6 +5,7 @@ HEADER="--when.repositories = [ \"${PWD}\" ]"
 
 preflight_checks() {
     config_name=${PWD##*/}
+    mkdir -p ${JJ_CONF_D}
     if [[ ! -e "${JJ_CONF_D}/${config_name}.toml" ]]; then
         echo "${JJ_CONF_D}/${config_name}.toml doesn't exist, creating it."
         echo "${HEADER}" > "${JJ_CONF_D}/${config_name}.toml"
