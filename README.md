@@ -56,7 +56,6 @@ jj gitlab -r 'immutable_heads()' --limit=100
 ### Dependencies
 `jj-ci-resolver` requires the following dependencies to be available in the PATH:
 - [glab](https://docs.gitlab.com/editor_extensions/gitlab_cli/)
-- [jq](https://jqlang.org/)
 
 
 ## How does it work
